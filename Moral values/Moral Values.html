@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌸 Moral Values Quiz 🌸</title>
+  <style>
+    :root {
+      --primary: #00bcd4; /* sky-blue */
+      --bg-light: #f1f8e9;
+      --bg-dark: #1e1e1e;
+      --text-light: #1b1b1b;
+      --text-dark: #f1f1f1;
+      --card-bg-light: #ffffff;
+      --card-bg-dark: #2a2a2a;
+      --radius: 12px;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    body.light {
+      background: var(--bg-light);
+      color: var(--text-light);
+    }
+
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    .card-light {
+      background: var(--card-bg-light);
+    }
+
+    .card-dark {
+      background: var(--card-bg-dark);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+      min-height: 100vh;
+      animation: fadeInBody 1s ease-in;
+    }
+
+    @keyframes fadeInBody {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    #quiz-card {
+      padding: 2rem;
+      width: 100%;
+      max-width: 650px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      animation: floatIn 0.6s ease-out;
+    }
+
+    @keyframes floatIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      font-size: 1.8rem;
+      color: var(--primary);
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--primary);
+    }
+
+    .question {
+      margin: 1.2rem 0;
+      animation: fadeInQ 0.5s ease-in;
+    }
+
+    @keyframes fadeInQ {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .options {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .options li {
+      margin: 0.5rem 0;
+    }
+
+    .options input[type="radio"] {
+      accent-color: var(--primary);
+      margin-right: 0.4rem;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: var(--primary);
+      border: none;
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      cursor: pointer;
+      flex: 1;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    #result {
+      font-size: 1.25rem;
+      font-weight: 700;
+      text-align: center;
+      margin-top: 1.25rem;
+      color: var(--primary);
+    }
+
+    .mistakes {
+      margin-top: 1rem;
+      background: #ffebee;
+      color: #c62828;
+      padding: 1rem;
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+    }
+
+    body.dark .mistakes {
+      background: #2e1a1a;
+      color: #ef9a9a;
+    }
+
+    .progress-container {
+      height: 8px;
+      width: 100%;
+      background: #ddd;
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background-color: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body class="light">
+  <button class="theme-toggle" id="themeToggle">🌙</button>
+  <div id="quiz-card" class="card-light">
+    <h1>🌸 Moral Values Quiz 🌸</h1>
+    <div class="progress-container">
+      <div class="progress-bar" id="progress"></div>
+    </div>
+    <form id="quiz-form"></form>
+    <div class="controls">
+      <button id="prev-btn" type="button">⟵ Previous</button>
+      <button id="next-btn" type="button">Next ⟶</button>
+    </div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const questions = [
+      { q: "If you make a mistake, what should you do?", o: ["Blame someone else", "Hide it", "Admit it and say sorry"], a: 2 },
+      { q: "How can you show kindness to a new student?", o: ["Ignore them", "Make fun of them", "Help them feel welcome"], a: 2 },
+      { q: "Respecting others means:", o: ["Speaking kindly and listening to them", "Interrupting and shouting", "Ignoring their opinions"], a: 0 },
+      { q: "Responsibility means:", o: ["Doing your duties", "Avoiding work", "Making excuses"], a: 0 },
+      { q: "A friend is crying. What should you do?", o: ["Ignore them", "Tease them", "Ask what's wrong and comfort them"], a: 2 },
+      { q: "When someone is struggling to carry bags, you should:", o: ["Watch them struggle", "Run away", "Offer help"], a: 2 },
+      { q: "What makes teamwork successful?", o: ["Arguing with team members", "Helping and supporting each other", "Doing only your part"], a: 1 },
+      { q: "If you're angry, what should you do?", o: ["Hit someone", "Calm down before reacting", "Shout loudly"], a: 1 },
+      { q: "If your friend says sorry, what is the best thing to do?", o: ["Forgive them", "Stay angry", "Never talk to them again"], a: 0 },
+      { q: "How can you show gratitude?", o: ["Say \"Thank you\"", "Take things for granted", "Always complain"], a: 0 }
+    ];
+
+    const themeToggle = document.getElementById("themeToggle");
+    const body = document.body;
+    const quizCard = document.getElementById("quiz-card");
+    themeToggle.onclick = () => {
+      if (body.classList.contains("light")) {
+        body.classList.replace("light", "dark");
+        quizCard.classList.replace("card-light", "card-dark");
+        themeToggle.textContent = "☀️";
+      } else {
+        body.classList.replace("dark", "light");
+        quizCard.classList.replace("card-dark", "card-light");
+        themeToggle.textContent = "🌙";
+      }
+    };
+
+    let currentQuestion = 0;
+    const quizForm = document.getElementById("quiz-form");
+    const result = document.getElementById("result");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const progress = document.getElementById("progress");
+
+    const userAnswers = new Array(questions.length).fill(null);
+
+    function renderQuestion(index) {
+      quizForm.innerHTML = "";
+      result.textContent = "";
+      const item = questions[index];
+
+      const wrap = document.createElement("div");
+      wrap.className = "question";
+      wrap.innerHTML = `<p><strong>${index + 1}. ${item.q}</strong></p>`;
+
+      const ul = document.createElement("ul");
+      ul.className = "options";
+
+      item.o.forEach((opt, i) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <label>
+            <input type="radio" name="q${index}" value="${i}" required />
+            ${opt}
+          </label>`;
+        ul.appendChild(li);
+      });
+
+      wrap.appendChild(ul);
+      quizForm.appendChild(wrap);
+      nextBtn.textContent = (index === questions.length - 1) ? "Submit" : "Next ⟶";
+      progress.style.width = `${((index + 1) / questions.length) * 100}%`;
+    }
+
+    function saveAnswer() {
+      const selected = document.querySelector(`input[name="q${currentQuestion}"]:checked`);
+      if (selected) userAnswers[currentQuestion] = parseInt(selected.value, 10);
+    }
+
+    function restoreAnswer() {
+      const saved = userAnswers[currentQuestion];
+      if (saved !== null) {
+        const input = document.querySelector(`input[name="q${currentQuestion}"][value="${saved}"]`);
+        if (input) input.checked = true;
+      }
+    }
+
+    function calculateScore() {
+      let score = 0;
+      let mistakes = "";
+      questions.forEach((q, i) => {
+        if (userAnswers[i] === q.a) {
+          score++;
+        } else {
+          mistakes += `<p><strong>Q${i + 1}: ${q.q}</strong><br>❌ Your answer: <em>${q.o[userAnswers[i]] || "No answer"}</em><br>✅ Correct answer: <em>${q.o[q.a]}</em></p>`;
+        }
+      });
+
+      quizForm.innerHTML = "";
+      result.innerHTML = `🎉 You scored ${score} / ${questions.length}!`;
+      if (score < questions.length) {
+        const mistakeDiv = document.createElement("div");
+        mistakeDiv.className = "mistakes";
+        mistakeDiv.innerHTML = `<h3>🧐 Review Your Mistakes:</h3>${mistakes}`;
+        result.appendChild(mistakeDiv);
+      }
+    }
+
+    document.getElementById("next-btn").addEventListener("click", () => {
+      saveAnswer();
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        renderQuestion(currentQuestion);
+        restoreAnswer();
+      } else {
+        calculateScore();
+        document.querySelector(".controls").remove();
+        progress.style.width = "100%";
+      }
+    });
+
+    document.getElementById("prev-btn").addEventListener("click", () => {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        renderQuestion(currentQuestion);
+        restoreAnswer();
+      }
+    });
+
+    renderQuestion(currentQuestion);
+  </script>
+</body>
+</html>
